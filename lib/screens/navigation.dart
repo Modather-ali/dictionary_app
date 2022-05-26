@@ -11,15 +11,14 @@ class NavigationScreen extends StatelessWidget {
       length: 2,
       child: Scaffold(
         appBar: AppBar(
+          elevation: 0.0,
           leading: IconButton(
             onPressed: () {},
             icon: const Icon(
               Icons.settings,
             ),
           ),
-          title: const Text("My Dictionary"),
-          centerTitle: true,
-          bottom: const TabBar(tabs: [
+          title: const TabBar(tabs: [
             Tab(
               text: "Translator",
             ),
@@ -27,6 +26,8 @@ class NavigationScreen extends StatelessWidget {
               text: "Your Space",
             ),
           ]),
+          centerTitle: true,
+          // bottom:
         ),
         body: TabBarView(children: [
           // const TranslatorScreen(),

@@ -19,7 +19,7 @@ class _DictionaryScreenState extends State<DictionaryScreen> {
   late StreamController _streamController;
   late Stream _stream;
   final TextEditingController _controller = TextEditingController();
-  _search() async {
+  Future _search() async {
     if (_controller.text.isEmpty) {
       _streamController.add(null);
       return;
@@ -54,19 +54,30 @@ class _DictionaryScreenState extends State<DictionaryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
+      body: ListView(
         children: [
-          TextFormField(
-            controller: _controller,
-            decoration: InputDecoration(
-              hintText: "Search Word Here",
-              contentPadding: const EdgeInsets.only(left: 48),
-              prefixIcon: IconButton(
-                icon: const Icon(Icons.search),
-                onPressed: _search(),
-                color: Colors.white,
-              ),
-            ),
+          Container(
+            alignment: Alignment.center,
+            padding: const EdgeInsets.only(top: 20),
+            color: Colors.green,
+            child: TextFormField(
+                controller: _controller,
+                style: const TextStyle(color: Colors.white),
+                decoration: InputDecoration(
+                  hintText: "Search Word Here",
+                  hintStyle: const TextStyle(color: Colors.white),
+                  focusedBorder: const OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.black)),
+                  contentPadding: const EdgeInsets.only(left: 48),
+                  suffixIcon: IconButton(
+                      icon: const Icon(
+                        Icons.search,
+                        color: Colors.white,
+                      ),
+                      onPressed: () async {
+                        await _search();
+                      }),
+                )),
           ),
           StreamBuilder(
             stream: _stream,
@@ -83,21 +94,17 @@ class _DictionaryScreenState extends State<DictionaryScreen> {
                 );
               }
               print("DATA: ${snapshot.data}");
-              return ListView.builder(
-                itemCount: 1,
-                itemBuilder: (BuildContext context, int index) {
-                  return ListBody(
-                    children: [
-                      Container(
-                        color: Colors.grey[300],
-                        child: ListTile(
-                          title: Text(
-                              "${"${_controller.text.trim()}(${snapshot.data[0]["meanings"]![0]["definitions"]![0]["definition"]!}"})"),
-                        ),
-                      ),
-                    ],
-                  );
-                },
+
+              return ListBody(
+                children: [
+                  Container(
+                    color: Colors.grey[300],
+                    child: ListTile(
+                      title: Text(
+                          "${"${_controller.text.trim()}(${snapshot.data[0]["meanings"]![0]["definitions"]![0]["definition"]!}"})"),
+                    ),
+                  ),
+                ],
               );
             },
           ),
