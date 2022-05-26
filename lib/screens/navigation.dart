@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'translator.dart';
+import 'dictionary.dart';
 
 class NavigationScreen extends StatelessWidget {
   const NavigationScreen({Key? key}) : super(key: key);
@@ -29,7 +29,8 @@ class NavigationScreen extends StatelessWidget {
           ]),
         ),
         body: TabBarView(children: [
-          const TranslatorScreen(),
+          // const TranslatorScreen(),
+          const DictionaryScreen(),
           Container(
             color: Colors.red,
           )
