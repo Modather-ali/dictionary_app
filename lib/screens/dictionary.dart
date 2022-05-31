@@ -1,10 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:audioplayers/audioplayers.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
-import 'package:your_dictionary/Model/model.dart';
-
-import '../Services/service.dart';
 
 class DictionaryScreen extends StatefulWidget {
   const DictionaryScreen({Key? key}) : super(key: key);
@@ -14,49 +12,40 @@ class DictionaryScreen extends StatefulWidget {
 }
 
 class _DictionaryScreenState extends State<DictionaryScreen> {
-  // final String _url = "https://owlbot.info/api/v4/dictionary/";
-  // final String _token = "48ac18c3b240234630a16a8920e8be34804e2f65";
-
   final String _url = "https://api.dictionaryapi.dev/api/v2/entries/en/";
-  // final String _url = "https://libretranslate.com/?source=en&target=ar&q=";
-  // final String _url = "https://translate.terraprint.co/?source=en&target=ar&q=";
 
-  late StreamController _streamController;
-  late Stream _stream;
   final TextEditingController _controller = TextEditingController();
 
-  final DictionaryModel _dictionaryModel = DictionaryModel();
-  final DictionaryService _dictionaryService = DictionaryService();
-  Future _search() async {
-    _streamController.add("waiting");
+  AudioPlayer? audioPlayer;
 
+  Future _search() async {
     http.Response response = await http.get(
       Uri.parse(_url + _controller.text.trim()),
-
-      // headers: {"Authorization": "Token $_token"}
     );
 
     if (response.statusCode == 200) {
-      _streamController.add(jsonDecode(response.body));
-      // print(response);
-
+      return jsonDecode(response.body);
     }
-    // final dictionaryModel = dictionaryModelFromJson(response.body);
-    // return dictionaryModel;
+  }
+
+  void playAudio(String music) {
+    audioPlayer!.stop();
+
+    audioPlayer!.play(music);
   }
 
   @override
   void initState() {
-    _streamController = StreamController();
-    _stream = _streamController.stream;
-    // TODO: implement initState
+    setState(() {
+      audioPlayer = AudioPlayer();
+    });
 
     super.initState();
   }
 
   @override
   void dispose() {
-    // TODO: implement dispose
+    audioPlayer!.dispose();
     _controller.dispose();
     super.dispose();
   }
@@ -88,31 +77,80 @@ class _DictionaryScreenState extends State<DictionaryScreen> {
                         color: Colors.green.shade800,
                       ),
                       onPressed: () async {
-                        await _search();
+                        if (_controller.text.isNotEmpty) {
+                          setState(() {});
+                        }
                       }),
                 ),
-                onChanged: (text) async {
-                  // await _search();
-                  // _dictionaryService.getMeaning(word: _controller.text);
-                },
               ),
             ),
           ),
-          StreamBuilder(
-              stream: _stream,
+          FutureBuilder(
+              future: _search(),
               builder: (context, AsyncSnapshot snapshot) {
                 if (snapshot.hasData) {
-                  return ListView(
-                    children: List.generate(snapshot.data!.length, (index) {
+                  return ListView.separated(
+                    itemCount: snapshot.data!.length,
+                    padding: const EdgeInsets.symmetric(vertical: 15),
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    separatorBuilder: (context, index) => const Divider(
+                      height: 10,
+                      color: Colors.black,
+                      indent: 15,
+                      endIndent: 15,
+                    ),
+                    itemBuilder: (context, index) {
                       final data = snapshot.data![index];
-                      return Text(data[0]["meanings"].toString());
-                    }),
+                      return ListTile(
+                          title: Text(
+                              "${data["word"]}  ${data["phonetics"][index]["text"]}"),
+                          subtitle: Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(data["meanings"]![0]["definitions"][0]
+                                      ["definition"]
+                                  .toString()),
+                              const SizedBox(
+                                height: 7,
+                              ),
+                              if (data["meanings"]![0]["definitions"][0]
+                                      ["example"] !=
+                                  null)
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      "example",
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    Text(data["meanings"]![0]["definitions"][0]
+                                            ["example"]
+                                        .toString()),
+                                  ],
+                                ),
+                            ],
+                          ),
+                          trailing: IconButton(
+                            onPressed: () {
+                              final path =
+                                  data["phonetics"][index]["audio"].toString();
+
+                              playAudio(path);
+                            },
+                            icon: const Icon(Icons.hearing),
+                          ));
+                    },
                   );
                 } else {
                   return const Center(
                       child: Padding(
                     padding: EdgeInsets.only(top: 50),
-                    child: LinearProgressIndicator(),
+                    child: Text('Search for something'),
                   ));
                 }
               })
