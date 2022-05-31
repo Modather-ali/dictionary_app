@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -8,9 +7,7 @@ import '../Model/model.dart';
 
 class DictionaryService {
   final String _url = "https://api.dictionaryapi.dev/api/v2/entries/en/";
-  late StreamController _streamController;
-
- getMeaning({String? word}) async {
+  Future<List<DictionaryModel>> getMeaning({String? word}) async {
     final url = "$_url/$word";
     try {
       final req = await http.get(Uri.parse(url));
@@ -18,11 +15,19 @@ class DictionaryService {
       print(req.statusCode);
       if (req.statusCode == 200) {
         print(req.body);
-        _streamController.add(jsonDecode(req.body));
+
+        final dictionaryModel = dictionaryModelFromJson(req.body);
+        return dictionaryModel;
+      } else {
+        print(req.body);
+        final dictionaryModel = dictionaryModelFromJson(req.body);
+
+        return dictionaryModel;
       }
-    } on SocketException catch (stocket) {
-      print("Error: $stocket");
+    } on SocketException catch (_) {
+      return Future.error('No network found');
+    } catch (_) {
+      return Future.error('Something occured');
     }
-    return _streamController.stream;
   }
 }

@@ -25,13 +25,9 @@ class _DictionaryScreenState extends State<DictionaryScreen> {
   late Stream _stream;
   final TextEditingController _controller = TextEditingController();
 
-  DictionaryModel _dictionaryModel = DictionaryModel();
+  final DictionaryModel _dictionaryModel = DictionaryModel();
   final DictionaryService _dictionaryService = DictionaryService();
   Future _search() async {
-    if (_controller.text.isEmpty) {
-      _streamController.add(null);
-      return;
-    }
     _streamController.add("waiting");
 
     http.Response response = await http.get(
@@ -43,7 +39,10 @@ class _DictionaryScreenState extends State<DictionaryScreen> {
     if (response.statusCode == 200) {
       _streamController.add(jsonDecode(response.body));
       // print(response);
+
     }
+    // final dictionaryModel = dictionaryModelFromJson(response.body);
+    // return dictionaryModel;
   }
 
   @override
@@ -93,38 +92,30 @@ class _DictionaryScreenState extends State<DictionaryScreen> {
                       }),
                 ),
                 onChanged: (text) async {
-                  await _search();
+                  // await _search();
                   // _dictionaryService.getMeaning(word: _controller.text);
                 },
               ),
             ),
           ),
           StreamBuilder(
-            stream: _stream,
-            builder: (BuildContext context, AsyncSnapshot snapshot) {
-              if (snapshot.data == null) {
-                return const Center(
-                  child: Text("Enter a word"),
-                );
-              }
-              _dictionaryModel = snapshot.data!;
-
-              print("DATA: ${snapshot.data}");
-
-              return ListBody(
-                children: [
-                  Container(
-                    color: Colors.grey[300],
-                    child: ListTile(
-                      title: Text(
-                        _dictionaryModel.origin.toString(),
-                      ),
-                    ),
-                  ),
-                ],
-              );
-            },
-          ),
+              stream: _stream,
+              builder: (context, AsyncSnapshot snapshot) {
+                if (snapshot.hasData) {
+                  return ListView(
+                    children: List.generate(snapshot.data!.length, (index) {
+                      final data = snapshot.data![index];
+                      return Text(data[0]["meanings"].toString());
+                    }),
+                  );
+                } else {
+                  return const Center(
+                      child: Padding(
+                    padding: EdgeInsets.only(top: 50),
+                    child: LinearProgressIndicator(),
+                  ));
+                }
+              })
         ],
       ),
     );
