@@ -1,16 +1,8 @@
-# your_dictionary
+# dictionary app
 
-A new Flutter project.
+A Flutter project.
 
-## Getting Started
+## Screens
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+![Screenshot_20220531_134555_com example your_dictionary](https://user-images.githubusercontent.com/83032155/171169221-73be4777-8220-4346-a9e2-c553319e3ed0.jpg)
+![Screenshot_20220531_134612_com example your_dictionary](https://user-images.githubusercontent.com/83032155/171169231-24b1b140-3ead-47b5-bcc7-8d1f034907c3.jpg)
